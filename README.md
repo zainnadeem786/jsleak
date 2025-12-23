@@ -39,7 +39,6 @@ pip install jsleak
 git clone https://github.com/zainnadeem786/jsleak.git
 cd jsleak
 pip install jsleak
-
 ```
 
 **Requirements:** Python 3.8+
@@ -431,7 +430,7 @@ SECRETS_PATTERNS = {
 
 See [CHANGELOG.md](CHANGELOG.md) for version history and release notes.
 
-**Current Version:** 0.5.0
+**Current Version:** 0.5.6
 
 **Versioning:** We follow [Semantic Versioning](https://semver.org/).
 
