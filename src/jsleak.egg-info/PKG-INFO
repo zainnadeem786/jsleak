@@ -19,9 +19,6 @@ Classifier: Topic :: Security
 Requires-Python: >=3.8
 Description-Content-Type: text/markdown
 Requires-Dist: PyYAML>=6.0
-Requires-Dist: requests>=2.28
-Requires-Dist: tqdm>=4.65
-Requires-Dist: colorama>=0.4.6
 
 # jsleak
 
