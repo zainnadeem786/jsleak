@@ -5,3 +5,4 @@ dist/
 build/
 .venv
 vend
+PYPI_PUBLISHING_GUIDE.md

@@ -1,24 +1,37 @@
 Metadata-Version: 2.4
 Name: jsleak
-Version: 0.5.4
-Summary: A production-quality tool to scan JavaScript files for exposed secrets and endpoints.
+Version: 0.5.10
+Summary: A professional scanner for detecting secrets and endpoints in JavaScript files
 Author-email: Zain Nadeem <zainnadeemzainnadeem80@gmail.com>
 License: MIT
 Project-URL: Homepage, https://github.com/zainnadeem786/jsleak
-Project-URL: Bug_Tracker, https://github.com/zainnadeem786/jsleak/issues
-Classifier: Development Status :: 4 - Beta
+Project-URL: Documentation, https://github.com/zainnadeem786/jsleak#readme
+Project-URL: Repository, https://github.com/zainnadeem786/jsleak
+Project-URL: Bug Tracker, https://github.com/zainnadeem786/jsleak/issues
+Project-URL: Changelog, https://github.com/zainnadeem786/jsleak/blob/main/CHANGELOG.md
+Keywords: security,scanner,javascript,secrets,ci-cd,sarif,api-key,endpoint,static-analysis
+Classifier: Development Status :: 5 - Production/Stable
 Classifier: Intended Audience :: Developers
 Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: System Administrators
 Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
 Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.8
 Classifier: Programming Language :: Python :: 3.9
 Classifier: Programming Language :: Python :: 3.10
 Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
 Classifier: Topic :: Security
+Classifier: Topic :: Software Development :: Quality Assurance
+Classifier: Topic :: Software Development :: Testing
 Requires-Python: >=3.8
 Description-Content-Type: text/markdown
 Requires-Dist: PyYAML>=6.0
+Requires-Dist: requests>=2.28.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0; extra == "dev"
 
 # jsleak
 
