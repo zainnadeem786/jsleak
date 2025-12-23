@@ -38,7 +38,7 @@ pip install jsleak
 ```bash
 git clone https://github.com/zainnadeem786/jsleak.git
 cd jsleak
-pip install -e .
+pip install jsleak
 ```
 
 **Requirements:** Python 3.8+
