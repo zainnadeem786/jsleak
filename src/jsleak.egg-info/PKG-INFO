@@ -1,0 +1,535 @@
+Metadata-Version: 2.4
+Name: jsleak
+Version: 0.5.1
+Summary: A production-quality tool to scan JavaScript files for exposed secrets and endpoints.
+Author-email: Zain Nadeem <zainnadeemzainnadeem80@gmail.com>
+License: MIT
+Project-URL: Homepage, https://github.com/zainnadeem786/jsleak
+Project-URL: Bug_Tracker, https://github.com/zainnadeem786/jsleak/issues
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Information Technology
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Security
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: PyYAML>=6.0
+
+# jsleak
+
+**A professional scanner for detecting secrets and endpoints in JavaScript files**
+
+`jsleak` is a lightweight, fast, and deterministic security scanner designed to detect exposed secrets (API keys, tokens, credentials) and endpoints in JavaScript files. Built for security engineers, developers, and bug bounty hunters, it integrates seamlessly into CI/CD pipelines with configurable severity thresholds, baseline support, and multiple output formats including SARIF.
+
+**Author:** Zain Nadeem  
+**Role:** Python Developer & Cybersecurity Specialist  
+**Contact:** zainnadeemzainnadeem80@gmail.com
+
+[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+---
+
+## Features
+
+✅ **Secret Detection** - Detects AWS keys, API tokens, private keys, database credentials, and more  
+✅ **Endpoint Discovery** - Extracts URLs, API paths, and WebSocket endpoints  
+✅ **Severity & Confidence Scoring** - Each finding includes severity (CRITICAL/HIGH/MEDIUM/LOW) and confidence levels  
+✅ **Masked Output by Default** - Secrets are redacted by default for safe logging  
+✅ **Multiple Output Formats** - Text, JSON, and SARIF for enterprise tooling integration  
+✅ **Baseline Support** - Suppress known findings to focus on new secrets in CI  
+✅ **Configurable Thresholds** - Fail builds only on HIGH/CRITICAL findings  
+✅ **Line & Column Reporting** - Precise location information for every finding  
+✅ **CI/CD Ready** - Deterministic output with well-defined exit codes  
+
+---
+
+## Installation
+
+### From PyPI (Recommended)
+```bash
+pip install jsleak
+```
+
+### From Source
+```bash
+git clone https://github.com/zainnadeem786/jsleak.git
+cd jsleak
+pip install -e .
+```
+
+**Requirements:** Python 3.8+
+
+**Supported Platforms:** Linux, macOS, Windows
+
+---
+
+## Quick Start
+
+### Scan a Single File
+```bash
+jsleak path/to/app.js
+```
+
+### Scan a Directory Recursively
+```bash
+jsleak ./src -r
+```
+
+### Scan a Remote URL
+```bash
+jsleak https://example.com/assets/bundle.js
+```
+
+### Example Output
+```text
++----------------------------------------+
+| jsleak v0.5.0                          |
+| scanning: src/config.js                |
++----------------------------------------+
+
+[FILE] src/config.js
+  [!] Secrets:
+    > AWS Access Key [HIGH | HIGH]:
+      - AKIA************MNOP (12:20)
+    > Google API Key [HIGH | HIGH]:
+      - AIza*******************************bcde (24:15)
+
+========================================
+ SCAN SUMMARY
+========================================
+Files Scanned: 1
+Secrets Found: 2
+  HIGH: 2
+```
+
+---
+
+## CLI Usage
+
+### Global Options
+```bash
+jsleak --version              # Show version and exit
+jsleak --help                 # Show help message
+```
+
+### Scan Options
+```bash
+jsleak <target> [options]
+
+  -r, --recursive             Scan directories recursively
+  --config FILE               Path to config file (default: .jsleak.yml)
+  --baseline FILE             Path to baseline JSON to ignore known findings
+  --fail-on-severity LEVEL    Override config threshold (LOW|MEDIUM|HIGH|CRITICAL)
+```
+
+### Output Options
+```bash
+  --format FORMAT             Output format: text, json, sarif (default: text)
+  --stats-only                Show only scan statistics
+  --hide-endpoints            Suppress endpoint output
+  --verbose                   Print debug information
+```
+
+### Masking & Redaction
+```bash
+  --show-secrets              Show full secret values (unmasked)
+  --no-mask                   Disable masking (same as --show-secrets)
+  --mask                      Force masked output (default)
+  --redact partial|full       Redaction strategy (partial=AKIA****1234, full=****************)
+```
+
+### Examples
+
+**Show Full Secrets (for auditing)**
+```bash
+jsleak ./src -r --show-secrets
+```
+
+**JSON Output**
+```bash
+jsleak ./src -r --format json > results.json
+```
+
+**SARIF Output for GitHub Code Scanning**
+```bash
+jsleak ./src -r --format sarif > results.sarif
+```
+
+**Quick Statistics**
+```bash
+jsleak ./src -r --stats-only
+```
+
+**Verbose Debug Mode**
+```bash
+jsleak ./src -r --verbose
+```
+
+---
+
+## Configuration
+
+Create a `.jsleak.yml` file in your project root:
+
+```yaml
+# Exclude specific secret types
+exclude:
+  secrets:
+    - "Generic API Key"
+  paths:
+    - "node_modules/"
+    - "vendor/"
+    - "*.min.js"
+
+# Minimum confidence to report (LOW, MEDIUM, HIGH)
+confidence_threshold: "MEDIUM"
+
+# Fail CI builds on this severity or higher
+fail_on_severity: "HIGH"
+
+# Path to baseline file
+baseline_path: "baseline.json"
+
+# Redaction strategy: partial, full, none
+redact_secrets: "partial"
+```
+
+**CLI flags override config values.**
+
+---
+
+## Baseline Support
+
+Baselines allow you to suppress known findings and fail builds only on **new** secrets.
+
+### Generate a Baseline
+```bash
+# First scan: capture current findings
+jsleak ./src -r --format json > findings.json
+
+# Create baseline from findings (manual or scripted)
+# baseline.json format:
+{
+  "ignored_findings": [
+    "hash_of_finding_1",
+    "hash_of_finding_2"
+  ]
+}
+```
+
+### Use Baseline in CI
+```bash
+jsleak ./src -r --baseline baseline.json --fail-on-severity HIGH
+```
+
+If all findings are in the baseline, exit code is `0`. New secrets trigger exit code `2`.
+
+---
+
+## Output Formats
+
+### Text (Default)
+Human-readable output with colors (auto-disabled in CI).
+
+### JSON
+```bash
+jsleak ./src -r --format json
+```
+
+**Example JSON Output:**
+```json
+[
+  {
+    "file": "src/config.js",
+    "secrets": {
+      "AWS Access Key": [
+        {
+          "value": "AKIA************MNOP",
+          "severity": "HIGH",
+          "confidence": "HIGH",
+          "line": 12,
+          "column": 20
+        }
+      ]
+    },
+    "endpoints": {
+      "Absolute URL": ["https://api.example.com"]
+    }
+  }
+]
+```
+
+### SARIF
+SARIF 2.1.0 compliant output for integration with GitHub Code Scanning, Azure DevOps, and other SAST tools.
+
+```bash
+jsleak ./src -r --format sarif > results.sarif
+```
+
+**Features:**
+- Rule metadata with severity and confidence
+- Precise line and column locations
+- Tool version and run metadata
+
+---
+
+## Exit Codes
+
+`jsleak` uses well-defined exit codes for CI integration:
+
+| Exit Code | Meaning |
+|-----------|---------|
+| `0` | No secrets above configured threshold (clean) |
+| `1` | Secrets found below fail threshold |
+| `2` | Secrets found meeting or exceeding fail threshold |
+| `3` | Critical error (file not found, network error, etc.) |
+| `130` | Keyboard interrupt (Ctrl+C) |
+
+### Example: Fail on HIGH or CRITICAL
+```bash
+jsleak ./src -r --fail-on-severity HIGH
+echo $?  # Exit code: 2 if HIGH/CRITICAL found, 0 otherwise
+```
+
+---
+
+## CI/CD Integration
+
+### GitHub Actions
+
+```yaml
+name: Secret Scanning
+
+on: [push, pull_request]
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install jsleak
+        run: pip install jsleak
+      
+      - name: Scan for secrets
+        run: |
+          jsleak ./src -r \
+            --baseline baseline.json \
+            --fail-on-severity HIGH \
+            --format sarif > results.sarif
+      
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: results.sarif
+```
+
+### GitLab CI
+
+```yaml
+secret-scan:
+  stage: test
+  image: python:3.11
+  script:
+    - pip install jsleak
+    - jsleak ./src -r --fail-on-severity HIGH --baseline baseline.json
+  artifacts:
+    reports:
+      sast: results.sarif
+```
+
+### Jenkins
+
+```groovy
+stage('Secret Scan') {
+    steps {
+        sh 'pip install jsleak'
+        sh 'jsleak ./src -r --fail-on-severity HIGH --format json > results.json'
+    }
+}
+```
+
+---
+
+## Security & Privacy
+
+### Default Masking
+By default, `jsleak` **masks all secrets** to prevent accidental exposure in logs:
+
+- **Partial redaction** (default): `AKIA****1234`
+- **Full redaction**: `****************`
+- **No masking**: Use `--show-secrets` for auditing
+
+### Safe Handling of Sensitive Output
+
+⚠️ **Never log unmasked secrets in CI/CD pipelines**
+
+```bash
+# ✅ Safe: masked output
+jsleak ./src -r --format json > results.json
+
+# ❌ Unsafe: full secrets in logs
+jsleak ./src -r --show-secrets > audit.log  # Only use locally
+```
+
+### Redaction Strategies
+
+```bash
+# Partial masking (default)
+jsleak ./src -r --redact partial
+
+# Full masking (maximum security)
+jsleak ./src -r --redact full
+
+# No masking (auditing only)
+jsleak ./src -r --show-secrets
+```
+
+---
+
+## Development
+
+### Setup Development Environment
+
+```bash
+git clone git clone https://github.com/zainnadeem786/jsleak.git
+
+cd jsleak
+
+# Install in editable mode
+pip install -e .
+
+# Install dev dependencies
+pip install pytest pytest-cov
+```
+
+### Run Tests
+
+```bash
+# Run all tests
+python -m pytest tests/
+
+# Run with coverage
+python -m pytest --cov=jsleak tests/
+```
+
+### Adding New Detection Rules
+
+Edit `src/jsleak/patterns.py`:
+
+```python
+SECRETS_PATTERNS = {
+    "My Custom Token": PatternConfig(
+        pattern=re.compile(r'MY_TOKEN_[A-Z0-9]{32}'),
+        severity=SEVERITY_HIGH,
+        confidence=CONFIDENCE_HIGH
+    ),
+    # ... more patterns
+}
+```
+
+### Code Style
+
+- **Linting:** `flake8` or `ruff`
+- **Formatting:** `black`
+- **Type hints:** Encouraged
+
+---
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for version history and release notes.
+
+**Current Version:** 0.5.0
+
+**Versioning:** We follow [Semantic Versioning](https://semver.org/).
+
+---
+
+## License
+
+This project is licensed under the **MIT License**.
+
+```
+MIT License
+
+Copyright (c) 2025 jsleak contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+---
+
+## Disclaimer
+
+**Authorized Use Only**
+
+This tool is intended for use by security professionals and developers to audit their own systems or systems they have explicit permission to test. The authors are not responsible for any misuse.
+
+---
+
+## Links & Resources
+
+- **PyPI:** [https://pypi.org/project/jsleak/](https://pypi.org/project/jsleak/)
+- **GitHub:** [https://github.com/zainnadeem786/jsleak](https://github.com/zainnadeem786/jsleak)
+- **Security Policy:** [SECURITY.md](SECURITY.md)
+- **Changelog:** [CHANGELOG.md](CHANGELOG.md)
+
+---
+
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+**Areas for Contribution:**
+- New secret detection patterns
+- Performance improvements
+- Documentation enhancements
+- Bug reports and fixes
+
+---
+
+## Author
+
+**Zain Nadeem**  
+Python Developer & Cybersecurity Specialist
+
+For questions, suggestions, or security reports, contact: **zainnadeemzainnadeem80@gmail.com**
+
+---
+
+## Acknowledgments
+
+Built with ❤️ for the security community by Zain Nadeem.
+
+---
+
+**Made with Python 🐍 | Designed for Security 🔒**

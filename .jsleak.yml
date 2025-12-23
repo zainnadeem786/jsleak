@@ -1,0 +1,8 @@
+exclude:
+  secrets:
+    - "Generic API Key"
+  paths:
+    - "vendor/"
+    - "tests/"
+
+confidence_threshold: "MEDIUM"
