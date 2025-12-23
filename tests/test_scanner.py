@@ -5,7 +5,7 @@ class TestScanner(unittest.TestCase):
     def test_secrets_detection(self):
         content = """
         var aws = "AKIAABCDEFGHIJKLMNOP";
-        var google = "AIzaSyD-1234567890abcdef1234567890abcde";
+        var google = "AIzaSyD-1234567890abcdef12xxxxxxxxxxx";
         """
         result = scan_content(content)
         self.assertIn("AWS Access Key", result.secrets)
