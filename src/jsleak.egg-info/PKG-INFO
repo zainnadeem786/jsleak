@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: jsleak
-Version: 0.5.1
+Version: 0.5.4
 Summary: A production-quality tool to scan JavaScript files for exposed secrets and endpoints.
 Author-email: Zain Nadeem <zainnadeemzainnadeem80@gmail.com>
 License: MIT
@@ -19,6 +19,9 @@ Classifier: Topic :: Security
 Requires-Python: >=3.8
 Description-Content-Type: text/markdown
 Requires-Dist: PyYAML>=6.0
+Requires-Dist: requests>=2.28
+Requires-Dist: tqdm>=4.65
+Requires-Dist: colorama>=0.4.6
 
 # jsleak
 
@@ -60,7 +63,7 @@ pip install jsleak
 ```bash
 git clone https://github.com/zainnadeem786/jsleak.git
 cd jsleak
-pip install -e .
+pip install jsleak
 ```
 
 **Requirements:** Python 3.8+
@@ -452,7 +455,7 @@ SECRETS_PATTERNS = {
 
 See [CHANGELOG.md](CHANGELOG.md) for version history and release notes.
 
-**Current Version:** 0.5.0
+**Current Version:** 0.5.6
 
 **Versioning:** We follow [Semantic Versioning](https://semver.org/).
 
